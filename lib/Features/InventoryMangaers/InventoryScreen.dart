@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:smp_erp/Activities/CreatePurchaseRequisitionScreen.dart';
 import 'package:smp_erp/Navigations/NavigationHelper.dart';
-import 'package:smp_erp/Constants//ApiService.dart';
+
+import '../Core/Constants/ApiService.dart';
+import 'CreatePurchaseRequisitionScreen.dart';
 
 class Inventoryscreen extends StatefulWidget {
   const Inventoryscreen({super.key});

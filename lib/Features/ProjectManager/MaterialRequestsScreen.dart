@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:smp_erp/Activities/AddMaterialRequestScreen.dart';
+import 'package:smp_erp/Features/ProjectManager/AddMaterialRequestScreen.dart';
 import 'package:smp_erp/Navigations/NavigationHelper.dart';
 
 class MaterialRequestsScreen extends StatefulWidget {

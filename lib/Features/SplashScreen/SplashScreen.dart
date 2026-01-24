@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:smp_erp/Activities/LoginScreen.dart';
+import 'package:smp_erp/Features/LoginScreen/LoginScreen.dart';
 import 'package:smp_erp/Permissions/PermissionService.dart';
 
 class SplashScreen extends StatefulWidget {
