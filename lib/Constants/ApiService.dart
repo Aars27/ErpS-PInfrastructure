@@ -1,162 +1,57 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:smp_erp/Constants/ApiConstants.dart';
-import 'package:smp_erp/SharedPreffrence/SharedPreferencesHelper.dart';
+import 'package:dio/dio.dart';
+import '../Core/Storage/local_storage.dart';
+import '../Constants/ApiConstants.dart';
 
+enum ApiType { auth, app }
 
 class ApiService {
+  late Dio _dio;
 
-  static Future<dynamic> get(String endpoint, {bool requiresAuth = true}) async {
-    try {
-      final url = Uri.parse('${ApiConstants.baseUrl1}$endpoint');
+  ApiService({ApiType type = ApiType.app}) {
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: type == ApiType.auth
+            ? ApiConstants.authBaseUrl
+            : ApiConstants.appBaseUrl,
+        headers: ApiConstants.headers,
+      ),
+    );
 
-      Map<String, String> headers = ApiConstants.headers;
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await LocalStorage.getToken();
 
-      if (requiresAuth) {
-        final token = await SharedPreferencesHelper.getAccessToken();
-        if (token != null) {
-          headers = ApiConstants.getAuthHeaders(token);
-        }
-      }
+          if (token != null && type == ApiType.app) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
 
-      final response = await http.get(url, headers: headers);
-
-      return _handleResponse(response);
-    } catch (e) {
-      throw Exception('Network error: $e');
-    }
+          return handler.next(options);
+        },
+      ),
+    );
   }
 
-  // POST Request
-  static Future<dynamic> post(
-      String endpoint,
-      dynamic body, {
-        bool requiresAuth = false,
-      }) async {
-    try {
-      final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
-
-      Map<String, String> headers = ApiConstants.headers;
-
-      if (requiresAuth) {
-        final token = await SharedPreferencesHelper.getAccessToken();
-        if (token != null) {
-          headers = ApiConstants.getAuthHeaders(token);
-        }
-      }
-
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(body),
-      );
-
-      return _handleResponse(response);
-    } catch (e) {
-      throw Exception('Network error: $e');
-    }
-  }
-  static Future<dynamic> postMaterial(
-      String endpoint,
-      dynamic body, {
-        bool requiresAuth = false,
-      }) async {
-    try {
-      final url = Uri.parse('${ApiConstants.baseUrl1}$endpoint');
-
-      Map<String, String> headers = ApiConstants.headered;
-
-      if (requiresAuth) {
-        final token = await SharedPreferencesHelper.getAccessToken();
-        if (token != null) {
-          headers = ApiConstants.getAuthHeaders(token);
-        }
-      }
-
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(body),
-      );
-
-      return _handleResponse(response);
-    } catch (e) {
-      throw Exception('Network error: $e');
-    }
-  }
-  // PUT Request
-  static Future<dynamic> put(
-      String endpoint,
-      dynamic body, {
-        bool requiresAuth = true,
-      }) async {
-    try {
-      final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
-
-      Map<String, String> headers = ApiConstants.headers;
-
-      if (requiresAuth) {
-        final token = await SharedPreferencesHelper.getAccessToken();
-        if (token != null) {
-          headers = ApiConstants.getAuthHeaders(token);
-        }
-      }
-
-      final response = await http.put(
-        url,
-        headers: headers,
-        body: jsonEncode(body),
-      );
-
-      return _handleResponse(response);
-    } catch (e) {
-      throw Exception('Network error: $e');
-    }
+  ///  UPDATED POST (NOW SUPPORTS HEADERS)
+  Future<Response> post(
+      String path,
+      Map data, {
+        Map<String, String>? headers,
+      }) {
+    return _dio.post(
+      path,
+      data: data,
+      options: Options(headers: headers),
+    );
   }
 
-  // DELETE Request
-  static Future<dynamic> delete(
-      String endpoint, {
-        bool requiresAuth = true,
-      }) async {
-    try {
-      final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
-
-      Map<String, String> headers = ApiConstants.headers;
-
-      if (requiresAuth) {
-        final token = await SharedPreferencesHelper.getAccessToken();
-        if (token != null) {
-          headers = ApiConstants.getAuthHeaders(token);
-        }
-      }
-
-      final response = await http.delete(url, headers: headers);
-
-      return _handleResponse(response);
-    } catch (e) {
-      throw Exception('Network error: $e');
-    }
-  }
-
-  // Handle Response
-  static dynamic _handleResponse(http.Response response) {
-    switch (response.statusCode) {
-      case 200:
-      case 201:
-        return jsonDecode(response.body);
-      case 400:
-        throw Exception('Bad request: ${response.body}');
-      case 401:
-        throw Exception('Unauthorized: ${response.body}');
-      case 403:
-        throw Exception('Forbidden: ${response.body}');
-      case 404:
-        throw Exception('Not found: ${response.body}');
-      case 500:
-        throw Exception('Server error: ${response.body}');
-      default:
-        throw Exception('Error: ${response.statusCode} - ${response.body}');
-    }
+  Future<Response> get(
+      String path, {
+        Map<String, String>? headers,
+      }) {
+    return _dio.get(
+      path,
+      options: Options(headers: headers),
+    );
   }
 }

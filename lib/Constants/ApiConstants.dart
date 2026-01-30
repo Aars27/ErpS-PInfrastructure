@@ -1,57 +1,48 @@
-// lib/Constants/ApiConstants.dart
-
 class ApiConstants {
-  // Base URL
-  static const String baseUrl = 'https://m1qgkrd1-4043.inc1.devtunnels.ms/api';
-  static const String baseUrl1 = 'https://m1qgkrd1-4242.inc1.devtunnels.ms/api';
 
-  // Endpoints
+  static const String authBaseUrl =
+      // 'https://m1qgkrd1-4043.inc1.devtunnels.ms/api';
+      'http://192.168.1.24:4043/api';
+
+
+  static const String appBaseUrl =
+      // 'https://m1qgkrd1-4242.inc1.devtunnels.ms/api';
+      'http://192.168.1.24:4242/api';
+
+
+  // Auth
   static const String login = '/user/login';
-  static const String logout = '/user/logout';
-  static const String refreshToken = '/user/refresh-token';
 
-  // Project endpoints
+  // Project
   static const String projects = '/project';
 
-  // Stock endpoints
+  // Inventory
+  static const String inventoryManager = '/inventory-manager';
   static const String stock = '/stock';
-  static const String addStock = '/stock/add';
 
-  // Material Request endpoints
-  static const String materialRequests = '/material-requests';
-  static const String approveMaterialRequest = '/material-requests/approve';
-  static const String rejectMaterialRequest = '/material-requests/reject';
-
-  // Material endpoints
+  // Material & PR
   static const String material = '/material';
   static const String pr = '/pr';
 
-  // Vendor endpoints
-  static const String vendors = '/vendors';
+  static const String labour = '/labour';
 
-  // User endpoints
-  static const String users = '/users';
+
+  static const String dpr = '/dpr';
+
+
+  static String submitPr(int id) => '/pr/$id/submit';
 
   // Headers
-  static Map<String, String> get headers => {
+  static Map<String, String> headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'Accept-Encoding': 'gzip, deflate, br',
   };
 
-  static Map<String, String> get headered => {
+  static Map<String, String> inventoryHeaders(String token) => {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'x-module':'Inventory',
-    'Accept-Encoding': 'gzip, deflate, br',
-  };
-
-  static Map<String, String> getAuthHeaders(String token) => {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'x-module':'Inventory',
-    'action-perform':'create',
-    'Accept-Encoding': 'gzip, deflate, br',
+    'Accept': '*/*',
     'Authorization': 'Bearer $token',
+    'x-module': 'Inventory Management',
+    'action-perform': 'create',
   };
 }

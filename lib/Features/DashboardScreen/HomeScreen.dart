@@ -1,258 +1,242 @@
 import 'package:flutter/material.dart';
-import 'package:smp_erp/Navigations/NavigationHelper.dart';
-import 'package:smp_erp/Permissions/PermissionService.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final PermissionService _permissionService = PermissionService();
-  Map<String, bool> _permissionStatus = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _checkPermissions();
-  }
-
-  Future<void> _checkPermissions() async {
-    final location = await _permissionService.isLocationGranted();
-    final camera = await _permissionService.isCameraGranted();
-    final photos = await _permissionService.isPhotosGranted();
-    final notification = await _permissionService.isNotificationGranted();
-
-    setState(() {
-      _permissionStatus = {
-        'Location': location,
-        'Camera': camera,
-        'Gallery': photos,
-        'Notifications': notification,
-      };
-    });
-  }
+class DashboardScreen extends StatelessWidget {
+  const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // 🔹 TEMP DATA (baad me Provider se aayega)
+    final String userName = 'Ramesh Kumar';
+    final String roleName = 'Project Manager';
+    final String location = 'Mumbai, Maharashtra';
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Inventory Manager',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
             Text(
-              'Construction Materials Tracking',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              userName,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2D3142),
+              ),
+            ),
+            Row(
+              children: [
+                const Icon(
+                  Icons.location_on,
+                  size: 12,
+                  color: Color(0xFFF15716),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  location,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ],
             ),
           ],
-
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 0,
-        toolbarHeight: 70,
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.notifications_outlined),
+                  color: const Color(0xFF2D3142),
+                  onPressed: () {},
+                ),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Container(
+                    height: 8,
+                    width: 8,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF15716),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome Card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFFF6B35), Color(0xFFFF8C42)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Welcome Section
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFF15716), Color(0xFFFF7A3D)],
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Welcome Back!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Here\'s what\'s happening with your\ninventory today',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.95),
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
+                borderRadius: BorderRadius.circular(16),
+                image: DecorationImage(
+                  image: NetworkImage(
+                    'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800',
+                  ),
+                  fit: BoxFit.cover,
+                  opacity: 0.15,
                 ),
               ),
-              const SizedBox(height: 20),
-
-              // Metrics Grid
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1.1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildMetricCard(
-                    icon: Icons.currency_rupee,
-                    iconColor: const Color(0xFFFF6B35),
-                    value: '₹12,45,890',
-                    label: 'Total Stock Value',
-                    trend: '+12.5%',
-                    trendPositive: true,
+                  Text(
+                    'Welcome Back!',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
                   ),
-                  _buildMetricCard(
-                    icon: Icons.warning_outlined,
-                    iconColor: const Color(0xFFFF6B35),
-                    value: '8',
-                    label: 'Low Stock Items',
-                    trend: 'Needs Attention',
-                    trendPositive: false,
-                  ),
-                  _buildMetricCard(
-                    icon: Icons.trending_up,
-                    iconColor: Colors.green,
-                    value: '24',
-                    label: 'Stock In Today',
-                    trend: '+8 from yesterday',
-                    trendPositive: true,
-                  ),
-                  _buildMetricCard(
-                    icon: Icons.trending_down,
-                    iconColor: Colors.blue,
-                    value: '15',
-                    label: 'Stock Out Today',
-                    trend: '-3 from yesterday',
-                    trendPositive: true,
+                  const SizedBox(height: 4),
+                  Text(
+                    roleName,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+            ),
 
-              // Recent Activity Section
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Recent Activity',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildActivityItem(
-                      title: 'Portland Cement',
-                      subtitle: '500 Bags • Highway Project A',
-                      time: '2 hours ago',
-                      type: 'Stock In',
-                      isStockIn: true,
-                    ),
-                    const Divider(height: 24),
-                    _buildActivityItem(
-                      title: 'Steel Rods 12mm',
-                      subtitle: '200 Pieces • Bridge Project B',
-                      time: '4 hours ago',
-                      type: 'Stock Out',
-                      isStockIn: false,
-                    ),
-                    const Divider(height: 24),
-                    _buildActivityItem(
-                      title: 'Aggregates',
-                      subtitle: '10 Ton • Building Project C',
-                      time: '6 hours ago',
-                      type: 'Stock In',
-                      isStockIn: true,
-                    ),
-                  ],
-                ),
+            const SizedBox(height: 32),
+
+            // Quick Overview
+            const Text(
+              'Quick Overview',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2D3142),
               ),
-              const SizedBox(height: 24),
+            ),
 
-              // Permission Status (Collapsed/Minimal)
-              if (_permissionStatus.isNotEmpty &&
-                  _permissionStatus.values.any((v) => !v))
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.orange[50],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orange[200]!),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.info_outline, color: Colors.orange[700]),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Some permissions need attention',
-                          style: TextStyle(
-                            color: Colors.orange[900],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          _showPermissionsDialog(context);
-                        },
-                        child: const Text('Review'),
-                      ),
-                    ],
-                  ),
+            const SizedBox(height: 16),
+
+            // Dashboard Cards
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 1.3,
+              children: const [
+                _DashboardCard(
+                  title: 'Projects',
+                  value: '12',
+                  icon: Icons.work_outline,
+                  color: Color(0xFF4CAF50),
                 ),
-              const SizedBox(height: 80), // Extra padding for bottom navigation
-            ],
-          ),
+                _DashboardCard(
+                  title: 'Inventory',
+                  value: '245',
+                  icon: Icons.inventory_2_outlined,
+                  color: Color(0xFFFF9800),
+                ),
+                _DashboardCard(
+                  title: 'Vendors',
+                  value: '18',
+                  icon: Icons.store_outlined,
+                  color: Color(0xFF2196F3),
+                ),
+                _DashboardCard(
+                  title: 'Users',
+                  value: '32',
+                  icon: Icons.group_outlined,
+                  color: Color(0xFF9C27B0),
+                ),
+              ],
+            ),
+
+            // const SizedBox(height: 32),
+
+            // Recent Activities
+            const Text(
+              'Recent Activities',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2D3142),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Activity List
+            const _ActivityItem(
+              title: 'New PR Created',
+              subtitle: 'PR-2026-045 submitted for approval',
+              icon: Icons.note_add_outlined,
+              color: Color(0xFF4CAF50),
+              time: '2h ago',
+            ),
+            const SizedBox(height: 12),
+            const _ActivityItem(
+              title: 'Material Delivered',
+              subtitle: 'Cement - 50 bags received',
+              icon: Icons.local_shipping_outlined,
+              color: Color(0xFF2196F3),
+              time: '5h ago',
+            ),
+            const SizedBox(height: 12),
+            const _ActivityItem(
+              title: 'Vendor Payment',
+              subtitle: '₹2,45,000 processed successfully',
+              icon: Icons.payment_outlined,
+              color: Color(0xFF9C27B0),
+              time: 'Yesterday',
+            ),
+
+            const SizedBox(height: 20),
+          ],
         ),
       ),
-      bottomNavigationBar: NavigationHelper.buildBottomNavBar(context, 0),
     );
   }
+}
 
-  Widget _buildMetricCard({
-    required IconData icon,
-    required Color iconColor,
-    required String value,
-    required String label,
-    required String trend,
-    required bool trendPositive,
-  }) {
+/// 🔹 SIMPLE DASHBOARD CARD
+class _DashboardCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  const _DashboardCard({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -264,161 +248,40 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            height: 28,
+            width: 28,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: iconColor, size: 20),
-          ),
-          const SizedBox(height: 8),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey[600],
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  trend,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: trendPositive ? Colors.green : Colors.orange[700],
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+            child: Icon(
+              icon,
+              color: color,
+              size: 12,
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActivityItem({
-    required String title,
-    required String subtitle,
-    required String time,
-    required String type,
-    required bool isStockIn,
-  }) {
-    return Row(
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: isStockIn ? Colors.green : Colors.blue,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                title,
+                value,
                 style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2D3142),
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                subtitle,
+                title,
                 style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                time,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[500],
+                  fontSize: 10,
+                  color: Colors.grey.shade600,
                 ),
               ),
             ],
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: isStockIn ? Colors.green[50] : Colors.blue[50],
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            type,
-            style: TextStyle(
-              fontSize: 12,
-              color: isStockIn ? Colors.green[700] : Colors.blue[700],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _showPermissionsDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Permission Status'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: _permissionStatus.entries.map((entry) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(entry.key),
-                  Icon(
-                    entry.value ? Icons.check_circle : Icons.cancel,
-                    color: entry.value ? Colors.green : Colors.red,
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _checkPermissions();
-            },
-            child: const Text('Refresh'),
           ),
         ],
       ),
@@ -426,15 +289,91 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+/// 🔹 ACTIVITY ITEM WIDGET
+class _ActivityItem extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final String time;
 
+  const _ActivityItem({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+    required this.time,
+  });
 
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Icon
+          Container(
+            height: 44,
+            width: 44,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 22,
+            ),
+          ),
 
+          const SizedBox(width: 14),
 
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF2D3142),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ),
 
-
-
-
-
-
-
-
+          // Time
+          Text(
+            time,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

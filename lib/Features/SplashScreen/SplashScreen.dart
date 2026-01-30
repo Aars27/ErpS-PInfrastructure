@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:smp_erp/Features/LoginScreen/LoginScreen.dart';
-import 'package:smp_erp/Permissions/PermissionService.dart';
+import '../../Core/Storage/local_storage.dart';
+
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -10,252 +11,289 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
-  final PermissionService _permissionService = PermissionService();
-  bool _isCheckingPermissions = true;
-  String _statusMessage = 'Checking permissions...';
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _checkAndRequestPermissions();
+    _setupAnimations();
+    _initFlow();
   }
 
-  Future<void> _checkAndRequestPermissions() async {
-    await Future.delayed(const Duration(seconds: 2));
+  void _setupAnimations() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
 
-    // Check if all permissions are granted
-    bool allGranted = await _permissionService.checkAllPermissions();
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
+    );
 
-    if (allGranted) {
-      _navigateToLogin();
-    } else {
-      setState(() {
-        _isCheckingPermissions = false;
-        _statusMessage = 'Permissions Required';
-      });
-    }
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.2, 0.8, curve: Curves.easeOutBack),
+      ),
+    );
+
+    _animationController.forward();
   }
 
-  Future<void> _requestPermissions() async {
-    setState(() {
-      _statusMessage = 'Requesting permissions...';
-    });
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
-    final results = await _permissionService.requestAllPermissions();
+  /// ---------------------------
+  /// MAIN FLOW
+  /// ---------------------------
+  Future<void> _initFlow() async {
+    // Show splash for 2.5 seconds
+    await Future.delayed(const Duration(milliseconds: 2500));
 
-    // Check if any permission was permanently denied
-    bool permanentlyDenied = results.values.any((status) => status.isPermanentlyDenied);
+    // Request location permission silently
+    await _requestLocationPermission();
 
-    if (permanentlyDenied) {
-      _showSettingsDialog();
-    } else {
-      bool allGranted = await _permissionService.checkAllPermissions();
-      if (allGranted) {
-        _navigateToLogin();
-      } else {
-        setState(() {
-          _statusMessage = 'Some permissions denied';
-        });
-        _showPermissionDeniedDialog();
+    // Check login status
+    await _checkLogin();
+  }
+
+  /// ---------------------------
+  /// REQUEST LOCATION PERMISSION
+  /// ---------------------------
+  Future<void> _requestLocationPermission() async {
+    try {
+      final status = await Permission.location.status;
+
+      if (!status.isGranted) {
+        await Permission.location.request();
       }
+    } catch (e) {
+      // Silently handle permission errors
+      debugPrint('Location permission error: $e');
     }
   }
 
-  void _showSettingsDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Permissions Required'),
-          content: const Text(
-            'Some permissions are permanently denied. Please enable them from app settings to continue.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                await _permissionService.openSettings();
-              },
-              child: const Text('Open Settings'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  /// ---------------------------
+  /// CHECK LOGIN
+  /// ---------------------------
+  Future<void> _checkLogin() async {
+    if (!mounted) return;
 
-  void _showPermissionDeniedDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Permissions Needed'),
-          content: const Text(
-            'All permissions are required to use this app. Please grant them to continue.',
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _requestPermissions();
-              },
-              child: const Text('Retry'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+    final token = await LocalStorage.getToken();
 
-  void _navigateToLogin() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-    );
+    if (!mounted) return;
+
+    if (token != null) {
+      Navigator.pushReplacementNamed(context, '/dashboard');
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        width: double.infinity,
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
             colors: [
-              Color(0xFFFF6B1A), // Orange
-              Color(0xFFFF8534), // Lighter orange
+              const Color(0xFFFF6B4A),
+              // const Color(0xFFF15716),
+              const Color(0xFFE64A19),
             ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // S&P Logo
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: const Center(
-                  child: Text(
-                    'S&P',
-                    style: TextStyle(
-                      color: Color(0xFFFF6B1A),
-                      fontSize: 42,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
+        child: SafeArea(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(flex: 2),
 
-              // ERP Suite Title
-              const Text(
-                'ERP Suite',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 8),
+                  /// LOGO
+                  _buildLogo(),
 
-              // Subtitle
-              const Text(
-                'Construction Management System',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white70,
-                ),
-              ),
-              const SizedBox(height: 60),
+                  const SizedBox(height: 32),
 
-              // Loading or Permission UI
-              if (_isCheckingPermissions)
-                const CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 3,
-                )
-              else
-                Column(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 40),
-                      child: Text(
-                        'We need the following permissions to continue:',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    _buildPermissionItem(Icons.location_on, 'Location'),
-                    _buildPermissionItem(Icons.camera_alt, 'Camera'),
-                    _buildPermissionItem(Icons.photo_library, 'Gallery'),
-                    _buildPermissionItem(Icons.notifications, 'Notifications'),
-                    const SizedBox(height: 30),
-                    ElevatedButton(
-                      onPressed: _requestPermissions,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFFFF6B1A),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 50,
-                          vertical: 15,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Grant Permissions',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              const SizedBox(height: 20),
-              Text(
-                _statusMessage,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                ),
+                  /// APP NAME
+                  _buildAppName(),
+
+                  const SizedBox(height: 12),
+
+                  /// TAGLINE
+                  _buildTagline(),
+
+                  const Spacer(flex: 2),
+
+                  /// LOADING INDICATOR
+                  _buildLoadingIndicator(),
+
+                  const Spacer(),
+
+                  /// FOOTER
+                  _buildFooter(),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildPermissionItem(IconData icon, String label) {
+  Widget _buildLogo() {
+    return Container(
+      height: 120,
+      width: 120,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Image.asset(
+            'assets/logo.jpeg',
+            fit: BoxFit.contain,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppName() {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.easeOut,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: child,
+        );
+      },
+      child: Text(
+        'ERP Suite',
+        style: TextStyle(
+          fontSize: 36,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          letterSpacing: 1.5,
+          shadows: [
+            Shadow(
+              color: Colors.black.withOpacity(0.3),
+              offset: const Offset(0, 3),
+              blurRadius: 6,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTagline() {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 1000),
+      curve: Curves.easeOut,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: child,
+        );
+      },
+      child: Text(
+        'Construction Management System',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 15,
+          color: Colors.white.withOpacity(0.9),
+          letterSpacing: 0.5,
+          shadows: [
+            Shadow(
+              color: Colors.black.withOpacity(0.2),
+              offset: const Offset(0, 2),
+              blurRadius: 4,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Column(
+      children: [
+        SizedBox(
+          width: 40,
+          height: 40,
+          child: CircularProgressIndicator(
+            strokeWidth: 3,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              Colors.white.withOpacity(0.9),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(
+          'Loading...',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.8),
+            fontSize: 14,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFooter() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 40),
-      child: Row(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
         children: [
-          Icon(icon, color: Colors.white, size: 24),
-          const SizedBox(width: 15),
           Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
+            'Powered by',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.6),
+              fontSize: 11,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Genstree-AI',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.8),
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
             ),
           ),
         ],
