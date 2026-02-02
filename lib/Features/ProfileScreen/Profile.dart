@@ -1,441 +1,377 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:smp_erp/Features/ProfileScreen/profileController.dart';
 
-import '../InventoryDashoboardddddd/Inventory_dashboard_scsreen.dart';
-import '../allscreens/dpr modules.dart';
+import '../../Core/Widgets/AppBar.dart';
+import '../mainInventorymanagement/InventoryDashboardScreen.dart';
 
-class ProfileScreen extends StatelessWidget {
+
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
-  final Map<String, dynamic> profileJson = const {
-    "status": 200,
-    "user": {
-      "id": 1,
-      "name": "John Doe",
-      "email": "john.doe@example.com",
-      "mobileNumber": "+1234567890",
-      "role": {
-        "name": "Project Manager",
-        "permissions": [
-          {
-            "action": ["create", "read", "update", "delete"],
-            "modules": [
-              // {
-              //   "Name": "Dashboard",
-              //   "description":
-              //   "Centralized overview of system statistics, insights, and key metrics"
-              // },
-              {
-                "Name": "Manage Role & Permission",
-                "description":
-                "Role and permission configuration and access control management module"
-              },
-              {
-                "Name": "Project Management",
-                "description":
-                "Project planning, tracking, and execution management module"
-              },
-              {
-                "Name": "Vendor Management",
-                "description":
-                "Vendor onboarding, tracking, and management module"
-              },
-              {
-                "Name": "User Management",
-                "description":
-                "User account creation, update, and access management module"
-              },
-              {
-                "Name": "Role Management",
-                "description":
-                "Role creation, permission assignment, and access control module"
-              },
-              {
-                "Name": "Inventory Management",
-                "description":
-                "Inventory tracking, stock management, and item control module"
-              },
-              {
-                "Name": "DPR Module",
-                "description":
-                "Daily Progress Report creation and monitoring module"
-              },
-              {
-                "Name": "Master Creation",
-                "description": "Master data configuration and setup module"
-              },
-              {
-                "Name": "Chainage Tracking",
-                "description":
-                "Chainage-based progress and location tracking module"
-              },
-              {
-                "Name": "Sub Contractor",
-                "description": "Sub Contractor"
-              }
-            ]
-          }
-        ]
-      }
-    }
-  };
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
 
-  IconData _getModuleIcon(String moduleName) {
-    switch (moduleName) {
-      // case 'Dashboard':
-      //   return Icons.dashboard_rounded;
-      case 'Manage Role & Permission':
-        return Icons.admin_panel_settings_rounded;
-      case 'Project Management':
-        return Icons.folder_rounded;
-      case 'Vendor Management':
-        return Icons.store_rounded;
-      case 'User Management':
-        return Icons.people_rounded;
-      case 'Role Management':
-        return Icons.security_rounded;
-      case 'Inventory Management':
-        return Icons.inventory_2_rounded;
-      case 'DPR Module':
-        return Icons.description_rounded;
-      case 'Master Creation':
-        return Icons.settings_rounded;
-      case 'Chainage Tracking':
-        return Icons.timeline_rounded;
-      case 'Sub Contractor':
-        return Icons.construction_rounded;
-      default:
-        return Icons.widgets_rounded;
-    }
-  }
-
-  void _navigateToModule(BuildContext context, String moduleName) {
-    if (moduleName == 'Inventory Management') {
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => const DPRModuleScreen()),
-      // );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => InventoryDashboardScreen(),
-        ),
-      );
-    }
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfileController>().fetchProfile();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = profileJson['user'];
-    final role = user['role'];
-    final permissions = role['permissions'][0];
-    final modules = permissions['modules'];
-    final actions = permissions['action'];
+    return Consumer<ProfileController>(
+      builder: (_, c, __) {
+        if (c.isLoading) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFF5EE),
-      appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: Colors.transparent
-        ),
-        elevation: 0,
-        title: const Text(
-          'Profile',
-          style: TextStyle(
+        if (c.profile == null) {
+          return const Scaffold(
+            body: Center(child: Text('No profile data')),
+          );
+        }
+
+        final p = c.profile!;
+
+        return Scaffold(
+          backgroundColor: const Color(0xFFF5F7FA),
+          body: CustomScrollView(
+            slivers: [
+              CustomSliverAppBar(
+                title: 'My Profile',
+                subtitle: p.roleName,
+                backgroundColor: const Color(0xFFFF6B35),
+                expandedHeight: 80.0,
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      // Profile Avatar Section
+                      _buildProfileAvatar(p.name),
+                      const SizedBox(height: 24),
+
+                      // User Info Card
+                      _buildInfoCard(
+                        title: 'Personal Information',
+                        icon: Icons.person_outline,
+                        children: [
+                          _buildInfoRow(
+                            icon: Icons.badge_outlined,
+                            label: 'Full Name',
+                            value: p.name,
+                          ),
+                          _buildInfoRow(
+                            icon: Icons.email_outlined,
+                            label: 'Email',
+                            value: p.email,
+                          ),
+                          _buildInfoRow(
+                            icon: Icons.phone_outlined,
+                            label: 'Mobile',
+                            value: p.mobile,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Account Info Card
+                      _buildInfoCard(
+                        title: 'Account Details',
+                        icon: Icons.admin_panel_settings_outlined,
+                        children: [
+                          _buildInfoRow(
+                            icon: Icons.work_outline,
+                            label: 'Role',
+                            value: p.roleName,
+                          ),
+                          _buildInfoRow(
+                            icon: Icons.calendar_today_outlined,
+                            label: 'Member Since',
+                            value: _formatDate(p.createdAt),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      TextButton(onPressed: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>InventoryDashboardScreen()));
+                      }, child: Text('Inventory Management')),
+                      const SizedBox(height: 24),
+
+                      // Logout Button
+                      _buildLogoutButton(c, context),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildProfileAvatar(String name) {
+    final initials = _getInitials(name);
+
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFFF6B35).withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: CircleAvatar(
+        radius: 60,
+        backgroundColor: const Color(0xFFFF6B35),
+        child: Text(
+          initials,
+          style: const TextStyle(
+            fontSize: 36,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        backgroundColor: const Color(0xFFFF6B35),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFFFF6B35), Color(0xFFFF8C42)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+      ),
+    );
+  }
+
+  Widget _buildInfoCard({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF6B35).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: const Color(0xFFFF6B35),
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2D3748),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          /// USER CARD
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-                child: const CircleAvatar(
-                  radius: 32,
-                  backgroundColor: Color(0xFFFF6B35),
-                  child: Icon(Icons.person, color: Colors.white, size: 34),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user['name'],
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      user['email'],
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        // color: Colors.grey,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        '🔑 ${role['name']}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(children: children),
           ),
-
-          const SizedBox(height: 28),
-
-          Row(
-            children: [
-              Container(
-                width: 4,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFF6B35),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Text(
-                'Modules & Permissions',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2C3E50),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          /// MODULE GRID
-          ...modules.map<Widget>((module) {
-            return InkWell(
-              onTap: () => _navigateToModule(context, module['Name']),
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 14),
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFFFF6B35).withOpacity(0.1),
-                    width: 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFFF6B35).withOpacity(0.08),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFFF6B35), Color(0xFFFF8C42)],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            _getModuleIcon(module['Name']),
-                            color: Colors.white,
-                            size: 22,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            module['Name'],
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF2C3E50),
-                            ),
-                          ),
-                        ),
-                        const Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 16,
-                          color: Color(0xFFFF6B35),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      module['description'],
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[600],
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: actions
-                          .map<Widget>(
-                            (a) => Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFF6B35).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: const Color(0xFFFF6B35).withOpacity(0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            a.toString().toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFFFF6B35),
-                            ),
-                          ),
-                        ),
-                      )
-                          .toList(),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
         ],
       ),
     );
   }
-}
 
-// Module Detail Screen
-class ModuleDetailScreen extends StatelessWidget {
-  final String moduleName;
-
-  const ModuleDetailScreen({super.key, required this.moduleName});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        title: Text(
-          moduleName,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            icon,
+            size: 20,
+            color: const Color(0xFF718096),
           ),
-        ),
-        backgroundColor: const Color(0xFFFF6B35),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFFFF6B35), Color(0xFFFF8C42)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF718096),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFF2D3748),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFF6B35), Color(0xFFFF8C42)],
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.check_circle_outline,
-                size: 60,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              moduleName,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2C3E50),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 40),
-              child: Text(
-                'Module page loaded successfully!\nYou can add your content here.',
+    );
+  }
+
+  Widget _buildLogoutButton(ProfileController c, BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFEF4444).withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => _showLogoutDialog(context, c),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.logout_rounded, color: Colors.white, size: 22),
+              SizedBox(width: 12),
+              Text(
+                'Logout',
                 style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
                 ),
-                textAlign: TextAlign.center,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  void _showLogoutDialog(BuildContext context, ProfileController c) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.logout_rounded, color: Color(0xFFEF4444)),
+              SizedBox(width: 12),
+              Text('Logout'),
+            ],
+          ),
+          content: const Text(
+            'Are you sure you want to logout?',
+            style: TextStyle(fontSize: 15),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Color(0xFF718096),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                c.logout(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEF4444),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+              ),
+              child: const Text(
+                'Logout',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _getInitials(String name) {
+    final parts = name.trim().split(' ');
+    if (parts.isEmpty) return 'U';
+    if (parts.length == 1) return parts[0][0].toUpperCase();
+    return '${parts[0][0]}${parts[parts.length - 1][0]}'.toUpperCase();
+  }
+
+  String _formatDate(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      final months = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      ];
+      return '${months[date.month - 1]} ${date.day}, ${date.year}';
+    } catch (e) {
+      return dateString.split('T').first;
+    }
   }
 }

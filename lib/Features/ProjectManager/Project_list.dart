@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'ProjectModal.dart';
-import 'ProjectScreen.dart';
+import 'ProjectDetailsScreen.dart';
 import 'Project_Controller.dart';
 
 
@@ -24,7 +24,10 @@ class _ProjectScreenState extends State<ProjectScreen> {
     final controller = context.watch<ProjectController>();
 
     return Scaffold(
+
       appBar: AppBar(title: const Text('All Project')),
+
+
       body: controller.loading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(

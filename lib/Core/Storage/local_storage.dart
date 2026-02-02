@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/user_model.dart';
 
 class LocalStorage {
@@ -38,6 +39,7 @@ class LocalStorage {
     if (id == null) return null;
     return int.tryParse(id);
   }
+
 
   static Future<void> clear() async {
     await _storage.deleteAll();

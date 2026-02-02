@@ -1,26 +1,28 @@
-import 'Profilemodal.dart';
-
-class ProfileUserModel {
+class ProfileModel {
+  final int id;
   final String name;
   final String email;
-  final String role;
-  final List<ProfilePermissionModel> permissions;
+  final String mobile;
+  final String roleName;
+  final String createdAt;
 
-  ProfileUserModel({
+  ProfileModel({
+    required this.id,
     required this.name,
     required this.email,
-    required this.role,
-    required this.permissions,
+    required this.mobile,
+    required this.roleName,
+    required this.createdAt,
   });
 
-  factory ProfileUserModel.fromJson(Map<String, dynamic> json) {
-    return ProfileUserModel(
-      name: json['name'],
-      email: json['email'],
-      role: json['role']['name'],
-      permissions: (json['role']['permissions'] as List)
-          .map((e) => ProfilePermissionModel.fromJson(e))
-          .toList(),
+  factory ProfileModel.fromJson(Map<String, dynamic> json) {
+    return ProfileModel(
+      id: json['id'],
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      mobile: json['mobileNumber'] ?? '',
+      roleName: json['role']?['name'] ?? '',
+      createdAt: json['createdAt'] ?? '',
     );
   }
 }

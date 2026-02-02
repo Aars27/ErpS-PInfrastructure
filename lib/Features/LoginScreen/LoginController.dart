@@ -7,7 +7,6 @@ import '../../Core/Storage/local_storage.dart';
 import '../ProfileScreen/profileController.dart';
 
 
-
 class AuthController {
   static Future<void> login(
       BuildContext context,
@@ -32,7 +31,7 @@ class AuthController {
         await LocalStorage.saveAuth(data);
 
         // SET PROFILE (UI STATE)
-        context.read<ProfileController>().setProfile(data['user']);
+        // context.read<ProfileController>().setProfile(data['user']);
 
         // GO TO DASHBOARD
         Navigator.pushReplacementNamed(

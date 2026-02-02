@@ -1,11 +1,9 @@
-// DPR Model
-import '../MaterialScreen/MaterialModal.dart';
-import 'LabourModal.dart';
-
+// DPR Model - Corrected for Backend
 class DPRModel {
   final String date;
   final int projectId;
   final String weatherConditions;
+  final String dimension;
   final String safetyIncidents;
   final String remarks;
   final int submittedBy;
@@ -22,6 +20,7 @@ class DPRModel {
     required this.date,
     required this.projectId,
     required this.weatherConditions,
+    required this.dimension,
     required this.safetyIncidents,
     required this.remarks,
     required this.submittedBy,
@@ -36,10 +35,11 @@ class DPRModel {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    final json = {
       "date": date,
       "project_id": projectId,
       "weather_conditions": weatherConditions,
+      "Dimension": dimension,
       "safety_incidents": safetyIncidents,
       "remarks": remarks,
       "submitted_by": submittedBy,
@@ -47,76 +47,122 @@ class DPRModel {
       "labour_cost": labourCost,
       "machinery_cost": machineryCost,
       "total_cost": totalCost,
-      "materials": materials.map((e) => e.toJson()).toList(),
-      "labour_consumptions":
-      labourConsumptions.map((e) => e.toJson()).toList(),
-      "machinery": machinery.map((e) => e.toJson()).toList(),
+      "materials": materials.map((m) => m.toJson()).toList(),
+      "labour_consumptions": labourConsumptions.map((l) => l.toJson()).toList(),
+      "machinery": machinery.map((m) => m.toJson()).toList(),
       "file_ids": fileIds,
+    };
+
+    // Print for debugging
+    print('📤 DPR Request Body:');
+    print('=====================================');
+    print(json);
+    print('=====================================');
+
+    return json;
+  }
+}
+
+// DPR Material Model
+class DPRMaterial {
+  int? materialId;
+  String quantity;
+  String rate;
+  String amount;
+  String chainageFrom;
+  String chainageTo;
+
+  DPRMaterial({
+    this.materialId,
+    this.quantity = '',
+    this.rate = '',
+    this.amount = '',
+    this.chainageFrom = '',
+    this.chainageTo = '',
+  });
+
+  Map<String, dynamic> toJson() {
+    final qty = double.tryParse(quantity) ?? 0;
+    final rt = double.tryParse(rate) ?? 0;
+    final amt = double.tryParse(amount) ?? 0;
+
+    return {
+      "material_id": materialId,
+      "quantity": qty,
+      "rate": rt,
+      "amount": amt,
+      "chainage_from": chainageFrom,
+      "chainage_to": chainageTo,
     };
   }
 }
 
-// ---------------- MATERIAL ----------------
-class DPRMaterial {
-  MaterialItem? material;
-  String? quantity;
-  String? rate;
-  String? amount;
-  String? chainageFrom;
-  String? chainageTo;
 
-  DPRMaterial();
-
-  Map<String, dynamic> toJson() => {
-    "stock_id": material?.id,
-    "quantity": quantity ?? "0",
-    "rate": rate ?? "0",
-    "amount": amount ?? "0",
-    "chainage_from": chainageFrom,
-    "chainage_to": chainageTo,
-  };
-}
-
-// ---------------- LABOUR ----------------
+// DPR Labour Consumption Model
 class DPRLabourConsumption {
-  LabourItem? labour;
-  String? hours;
-  String? charges;
-  String? chainageFrom;
-  String? chainageTo;
+  String? skill;
+  String hours;
+  String charges;
+  String chainageFrom;
+  String chainageTo;
+  List<int> labourIds;
 
-  DPRLabourConsumption();
+  DPRLabourConsumption({
+    this.skill,
+    this.hours = '',
+    this.charges = '',
+    this.chainageFrom = '',
+    this.chainageTo = '',
+    this.labourIds = const [],
+  });
 
-  Map<String, dynamic> toJson() => {
-    "labour_id": labour?.id,
-    "hours": hours ?? "0",
-    "charges": charges ?? "0",
-    "chainage_from": chainageFrom,
-    "chainage_to": chainageTo,
-  };
+  Map<String, dynamic> toJson() {
+    return {
+      "skill": skill,
+      "hours": double.tryParse(hours) ?? 0,
+      "charges": double.tryParse(charges) ?? 0,
+      "chainage_from": chainageFrom,
+      "chainage_to": chainageTo,
+      "labour_ids": labourIds,
+    };
+  }
 }
 
-// ---------------- MACHINERY ----------------
+// DPR Machinery Model
 class DPRMachinery {
-  String? machineCode;
-  String? machineName;
-  String? chainageFrom;
-  String? chainageTo;
-  String? workingHours;
-  String? fuelType;
-  String? fuelConsumed;
-  String? fuelAmount;
+  String machineCode;
+  String machineName;
+  String chainageFrom;
+  String chainageTo;
+  String workingHours;
+  String fuelType;
+  String fuelConsumed;
+  String fuelAmount;
 
-  DPRMachinery();
+  DPRMachinery({
+    this.machineCode = '',
+    this.machineName = '',
+    this.chainageFrom = '',
+    this.chainageTo = '',
+    this.workingHours = '',
+    this.fuelType = '',
+    this.fuelConsumed = '',
+    this.fuelAmount = '',
+  });
 
-  Map<String, dynamic> toJson() => {
-    "machine_code": machineCode,
-    "machine_name": machineName,
-    "chainage_from": chainageFrom,
-    "chainage_to": chainageTo,
-    "working_hours": workingHours,
-    "fuel_type": fuelType,
-    "fuel_consumed": fuelConsumed,
-    "fuel_amount": fuelAmount ?? "0",
-  };
+  Map<String, dynamic> toJson() {
+    // Remove ₹ symbol from fuel amount
+    final cleanAmount = fuelAmount.replaceAll('₹', '').replaceAll(',', '').trim();
+
+    return {
+      "machine_code": machineCode,
+      "machine_name": machineName,
+      "chainage_from": chainageFrom,
+      "chainage_to": chainageTo,
+      "working_hours": double.tryParse(workingHours) ?? 0,
+      "fuel_type": fuelType,
+      "fuel_consumed": fuelConsumed,
+      "fuel_amount": cleanAmount,
+    };
+  }
 }

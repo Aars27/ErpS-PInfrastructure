@@ -4,20 +4,30 @@ class AppRoutes {
   static const String login = '/login';
   static const String dashboard = '/dashboard';
 
-  /// INVENTORY MANAGER
+  /// INVENTORY DASHBOARD
   static const String inventoryHome = '/inventory-manager';
 
-  /// PR
-  static const String prApproval = '/inventory/pr-approval';
+  /// INVENTORY MODULES
+  static const String inventoryStockPr = '/inventory-stock-pr';
+  static const String inventoryGrn = '/inventory-grn';
 
-  /// GRN
-  static const String grnCreate = '/inventory/grn-create';
+  /// MATERIAL MASTER
+  static const String materials = '/materials';
+  static const String materialCategory = '/material-category';
 
-  /// PROJECT
-  static const String projectList = '/inventory/projects';
-  static const String projectDetail = '/inventory/project-detail';
+
+  static const String materialUnit = '/material-unit';
 
   /// DPR
   static const String dprCreate = '/inventory/dpr-create';
-  static const String dprView = '/inventory/dpr-view';
+
+
+  /// GRN
+  static const String grnCreate = '/grn-create';
+
+  // stock
+  static const String stockCreate = '/stock-create';
+
+
+
 }

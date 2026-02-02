@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../Constants/ApiConstants.dart';
 import '../../Constants/ApiService.dart';
-import 'StockScreen/stockmodal.dart';
 import 'inventory_models.dart';
 
 class InventoryController extends ChangeNotifier {
@@ -9,7 +8,6 @@ class InventoryController extends ChangeNotifier {
 
   InventoryUserModel? user;
   InventoryLocationModel? location;
-  List<StockModel> stocks = [];
 
   Future<void> fetchInventory() async {
     try {
@@ -27,9 +25,6 @@ class InventoryController extends ChangeNotifier {
       user = InventoryUserModel.fromJson(item['user']);
       location = InventoryLocationModel.fromJson(item['location']);
 
-      stocks = (item['assigned_stocks'] as List)
-          .map((e) => StockModel.fromJson(e))
-          .toList();
     } catch (e) {
       debugPrint('❌ INVENTORY ERROR: $e');
     } finally {

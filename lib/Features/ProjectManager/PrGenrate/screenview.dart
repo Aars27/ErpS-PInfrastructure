@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../Core/Storage/local_storage.dart';
 import '../MaterialScreen/MaterialController.dart';
-import '../MaterialScreen/MaterialModal.dart';
+import '../MaterialScreen/NewMaterialModal.dart';
 import 'Modal.dart';
 import 'PrController.dart';
 

@@ -1,27 +1,54 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../../Constants/ApiConstants.dart';
+import '../../../Core/Storage/local_storage.dart';
 
-import '../../../Constants/ApiService.dart';
+class FileUploadService {
+  Future<List<int>> uploadFiles(List<XFile> files) async {
+    try {
+      final token = await LocalStorage.getToken();
 
+      FormData formData = FormData();
 
+      for (var file in files) {
+        formData.files.add(
+          MapEntry(
+            'files',
+            await MultipartFile.fromFile(
+              file.path,
+              filename: file.name,
+            ),
+          ),
+        );
+      }
 
-class FileUploadController {
-  final ApiService _api = ApiService();
+      final dio = Dio(BaseOptions(
+        baseUrl: ApiConstants.appBaseUrl,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'x-module': 'DPR Management',
+        },
+      ));
 
-  Future<int> uploadFile(File file) async {
-    final formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(
-        file.path,
-        filename: file.path.split('/').last,
-      ),
-    });
+      final response = await dio.post('/file/upload', data: formData);
 
-    final response = await _api.post(
-      '/file/upload',
-      formData as Map<dynamic, dynamic>,
-    );
+      print('✅ File upload response: ${response.data}');
 
-    // backend returns uploaded file id
-    return response.data['file']['id'];
+      if (response.data['success'] == true) {
+        List<int> fileIds = [];
+        for (var fileData in response.data['data']) {
+          fileIds.add(fileData['id']);
+        }
+        print('✅ Uploaded file IDs: $fileIds');
+        return fileIds;
+      } else {
+        throw 'File upload failed';
+      }
+    } catch (e) {
+      print('❌ File upload error: $e');
+      rethrow;
+    }
   }
 }

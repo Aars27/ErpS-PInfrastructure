@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import '../Core/Storage/local_storage.dart';
 import '../Constants/ApiConstants.dart';
 
@@ -20,28 +21,53 @@ class ApiService {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final token = await LocalStorage.getToken();
+          debugPrint("➡️ ${options.method} ${options.uri}");
 
-          if (token != null && type == ApiType.app) {
-            options.headers['Authorization'] = 'Bearer $token';
+          // 🔥 TOKEN ADD KARO (App API ke liye)
+          if (type == ApiType.app) {
+            String? token = await LocalStorage.getToken(); // ⬅️ Yeh implement karo
+
+            if (token != null) {
+              options.headers['Authorization'] = 'Bearer $token'; // ⬅️ YEH LINE ADD KARO
+            }
           }
 
+          debugPrint("➡️ HEADERS: ${options.headers}");
+          debugPrint("➡️ BODY: ${options.data}");
           return handler.next(options);
+        },
+
+        // Optional: Error handling
+        onError: (DioException error, handler) async {
+          debugPrint("❌ Error: ${error.response?.statusCode}");
+          debugPrint("❌ Error Data: ${error.response?.data}");
+
+          // Agar 401 (Unauthorized) aaye, toh logout karo
+          if (error.response?.statusCode == 401) {
+            await LocalStorage.clear();
+            // Navigate to login screen
+          }
+
+          return handler.next(error);
         },
       ),
     );
   }
 
-  ///  UPDATED POST (NOW SUPPORTS HEADERS)
   Future<Response> post(
       String path,
-      Map data, {
+      dynamic data, {
         Map<String, String>? headers,
       }) {
     return _dio.post(
       path,
       data: data,
-      options: Options(headers: headers),
+      options: Options(
+        headers: {
+          ..._dio.options.headers,
+          if (headers != null) ...headers,
+        },
+      ),
     );
   }
 

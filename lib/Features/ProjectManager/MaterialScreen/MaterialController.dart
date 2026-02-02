@@ -1,73 +1,65 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import '../../../Constants/ApiConstants.dart';
+
 import 'Materailservices.dart';
-import 'MaterialModal.dart';
+import 'NewMaterialModal.dart';
+
+
+
 
 
 class MaterialController {
-  final Dio _dio = Dio(BaseOptions(
-    baseUrl: ApiConstants.appBaseUrl,
-    headers: ApiConstants.headers,
-  ));
+  final MaterialApiService _service = MaterialApiService();
 
   Future<List<MaterialItem>> fetchMaterials() async {
-    final res = await _dio.get(ApiConstants.material);
+    try {
+      print('📦 Fetching materials from API...');
 
-    debugPrint('MATERIAL API RESPONSE => ${res.data}');
+      final Response response = await _service.getMaterials();
 
-    final List list = res.data;
+      print('✅ Material API Response: ${response.data}');
 
-    return list.map((e) => MaterialItem.fromJson(e)).toList();
+      // Check if response.data is Map or has 'materials' key
+      if (response.data == null) {
+        print('❌ Response data is null');
+        return [];
+      }
+
+      List<dynamic> materialsList;
+
+      // Handle different response formats
+      if (response.data is Map) {
+        // If response is a Map with 'materials' key
+        materialsList = response.data['materials'] ?? [];
+      } else if (response.data is List) {
+        // If response is directly a List
+        materialsList = response.data;
+      } else {
+        print('❌ Unexpected response format: ${response.data.runtimeType}');
+        return [];
+      }
+
+      print('✅ Materials count: ${materialsList.length}');
+
+      if (materialsList.isEmpty) {
+        print('⚠️ No materials found in response');
+        return [];
+      }
+
+      final materials = materialsList.map((e) {
+        print('📦 Parsing material: ${e['name']}');
+        return MaterialItem.fromJson(e);
+      }).toList();
+
+      print('✅ Successfully parsed ${materials.length} materials');
+      return materials;
+
+    } on DioException catch (e) {
+      print('❌ DioException: ${e.message}');
+      print('❌ Response: ${e.response?.data}');
+      throw e.response?.data['message'] ?? 'Failed to load materials';
+    } catch (e) {
+      print('❌ Error: $e');
+      rethrow;
+    }
   }
 }
-
-
-
-
-
-// import 'package:dio/dio.dart';
-// import 'package:flutter/cupertino.dart';
-// import '../../../Constants/ApiConstants.dart';
-// import '../../../Constants/ApiService.dart';
-// import '../MaterialScreen/MaterialModal.dart';
-//
-// class MaterialController {
-//   final ApiService _api = ApiService(type: ApiType.app);
-//
-//   Future<List<MaterialItem>> fetchMaterials() async {
-//     try {
-//       final Response response = await _api.get(
-//         ApiConstants.material,
-//         headers: {'x-module': 'Inventory Management'},
-//       );
-//
-//       // 1) PRINT RAW RESPONSE
-//       debugPrint("MATERIAL API RAW: ${response.data}");
-//
-//       /// ADJUST HERE BASED ON RETURN STRUCTURE
-//       final raw = response.data;
-//
-//       List materialsList;
-//
-//       // If your API returns { "data": [ ... ] }
-//       if (raw['data'] is List) {
-//         materialsList = raw['data'];
-//       }
-//       // If API returns { "materials": [ ... ] }
-//       else if (raw['materials'] is List) {
-//         materialsList = raw['materials'];
-//       }
-//       else {
-//         throw Exception("Unexpected material key in response");
-//       }
-//
-//       return materialsList
-//           .map((e) => MaterialItem.fromJson(e))
-//           .toList();
-//     } on DioError catch (e) {
-//       debugPrint("Material Fetch Error: ${e.response?.data}");
-//       rethrow;
-//     }
-//   }
-// }

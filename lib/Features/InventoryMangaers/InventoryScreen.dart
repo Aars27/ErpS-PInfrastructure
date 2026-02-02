@@ -58,10 +58,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 _info('Pincode', c.location!.pincode),
               ]),
 
-              _card(
-                'Assigned Stock',
-                c.stocks.map(_stockTile).toList(),
-              ),
 
               const SizedBox(height: 20),
 

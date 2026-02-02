@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:smp_erp/Features/InventoryDashoboardddddd/Inventory_dashboard_scsreen.dart';
+import 'package:smp_erp/Features/mainInventorymanagement/StockCreate/StcokScreen.dart';
 
-import '../../Features/InventoryDashoboardddddd/InventorymoduleManagerinventory/InventoryHistoryyscereer.dart';
-import '../../Features/InventoryDashoboardddddd/InventorymoduleManagerinventory/project_list_screennnn.dart';
-import '../../Features/InventoryDashoboardddddd/InventorymoduleManagerinventory/projeeect_detailsss_screeen.dart';
-import '../../Features/InventoryDashoboardddddd/Inventoryscreenim/GrnScreen/Grn_Scdreate_screen.dart';
-import '../../Features/InventoryDashoboardddddd/Inventoryscreenim/PrApprovalLIst.dart';
 import '../../Features/SplashScreen/SplashScreen.dart';
 import '../../Features/LoginScreen/LoginScreen.dart';
 import '../../Core/BottomPage/MainWrapperScreen.dart';
 
 
 
-import '../../Features/allscreens/dpr modules.dart';
-import '../../Features/allscreens/projectmanagement.dart';
+import '../../Features/ProjectManager/DPR/CreateDpRScreen.dart';
+import '../../Features/mainInventorymanagement/Category/CategoryScreen.dart';
+import '../../Features/mainInventorymanagement/InventoryDashboardScreen.dart';
+import '../../Features/mainInventorymanagement/Unit/screenunit.dart';
+import '../../Features/mainInventorymanagement/grn/grnCreateScsren.dart';
+import '../../Features/mainInventorymanagement/materailcreateeeee/Material_Screen.dart';
 import 'AppRoutes.dart';
 
 class AppRouter {
@@ -30,93 +29,56 @@ class AppRouter {
       case AppRoutes.dashboard:
         return MaterialPageRoute(builder: (_) => MainWrapperScreen());
 
-    /// ---------------- INVENTORY MANAGER ----------------
+    /// ---------------- INVENTORY ----------------
       case AppRoutes.inventoryHome:
         return MaterialPageRoute(
-          builder: (_) => InventoryDashboardScreen(),
+          builder: (_) => const InventoryDashboardScreen(),
         );
 
-      // case AppRoutes.prApproval:
-      //   return MaterialPageRoute(
-      //     builder: (_) => PRDetailScreen(),
-      //   );
-
-      case AppRoutes.grnCreate:
+      case AppRoutes.materials:
         return MaterialPageRoute(
-          builder: (_) => const GRNCreateScreen(),
+          builder: (_) => const MaterialScreen(),
         );
 
-    /// ---------------- PROJECT ----------------
-      case AppRoutes.projectList:
+      case AppRoutes.materialCategory:
         return MaterialPageRoute(
-          builder: (_) => ProjectListScreen(),
+          builder: (_) => const CategoryScreen(),
         );
 
-      case AppRoutes.projectDetail:
-        final args = settings.arguments as Map<String, dynamic>;
+      case AppRoutes.materialUnit:
         return MaterialPageRoute(
-          builder: (_) => ProjectDetailScreen(
-            project: args['project'],
-          ),
+          builder: (_) => const UnitScreen(),
         );
 
     /// ---------------- DPR ----------------
       case AppRoutes.dprCreate:
         return MaterialPageRoute(
-          builder: (_) => CreateDPRScreen(projectId: 1, userId:1 ,),
+          builder: (_) => CreateDPRScreen(projectId: 1),
         );
 
 
-        // enventory
+
+        // grn
+      case AppRoutes.grnCreate:
+        return MaterialPageRoute(
+          builder: (_) => GRNCreateScreen(),
+        );
 
 
-      case '/pr-approval':
-        return MaterialPageRoute(builder: (_) =>  PRApprovalListScreen());
-
-      case '/grn':
-        return MaterialPageRoute(builder: (_) => const GRNCreateScreen());
-
-      case '/projects':
-        return MaterialPageRoute(builder: (_) =>  ProjectListScreen());
-
-      case '/inventory-history':
-        return MaterialPageRoute(builder: (_) => InventoryHistoryScreen());
+    // grn
+      case AppRoutes.stockCreate:
+        return MaterialPageRoute(
+          builder: (_) =>StockCreateScreen(),
+        );
 
 
-
-
-
-
-
-
-
-
-
+    /// ---------------- FALLBACK ----------------
       default:
         return MaterialPageRoute(
           builder: (_) => const Scaffold(
             body: Center(child: Text('No route found')),
           ),
         );
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
-
-
-
-
-
-
   }
 }

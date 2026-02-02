@@ -6,9 +6,9 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 🔹 TEMP DATA (baad me Provider se aayega)
-    final String userName = 'Ramesh Kumar';
+    final String userName = 'Neha Gupta';
     final String roleName = 'Project Manager';
-    final String location = 'Mumbai, Maharashtra';
+    final String location = 'Lucknow,Gomti Nagar';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),

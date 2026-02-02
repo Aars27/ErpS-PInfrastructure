@@ -10,7 +10,7 @@ class DPRApiService {
       ApiConstants.dpr,
       dprData,  // This is the second positional argument
       headers: {
-        'x-module': 'DPR Management',
+        'x-module': 'Inventory Management',
         'action-perform': 'create',
       },
     );

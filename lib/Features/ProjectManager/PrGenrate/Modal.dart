@@ -1,4 +1,4 @@
-import '../MaterialScreen/MaterialModal.dart';
+import '../MaterialScreen/NewMaterialModal.dart';
 
 class PRMaterialForm {
   MaterialItem? material;
