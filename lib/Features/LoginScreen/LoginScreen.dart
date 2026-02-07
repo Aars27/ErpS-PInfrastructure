@@ -386,7 +386,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: loading
+            onTap:
+            loading
                 ? null
                 : () async{
               // Uncomment for actual authentication
@@ -404,6 +405,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               //     builder: (context) => MainWrapperScreen(),
               //   ),
               // );
+
+
             },
             borderRadius: BorderRadius.circular(16),
             child: Center(

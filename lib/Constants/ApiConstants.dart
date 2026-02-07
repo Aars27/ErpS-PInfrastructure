@@ -1,13 +1,13 @@
 class ApiConstants {
 
   static const String authBaseUrl =
-      'https://m1qgkrd1-4043.inc1.devtunnels.ms/api';
-      // 'http://192.168.29.196:4043/api';
+      // 'https://m1qgkrd1-4043.inc1.devtunnels.ms/api';
+      'http://192.168.1.24:4043/api';
 
 
   static const String appBaseUrl =
-      'https://m1qgkrd1-4242.inc1.devtunnels.ms/api';
-      // 'http://192.168.29.196:4242/api';
+      // 'https://m1qgkrd1-4242.inc1.devtunnels.ms/api';
+      'http://192.168.1.24:4242/api';
 
 
   // Auth
@@ -39,6 +39,9 @@ class ApiConstants {
   static const String category = '/category';
   //grn
   static const String grn = '/grn';
+
+  //profile
+  static const String profile = '/user/profile';
 
 
   static String submitPr(int id) => '/pr/$id/submit';

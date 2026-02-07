@@ -46,7 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             slivers: [
               CustomSliverAppBar(
                 title: 'My Profile',
-                subtitle: p.roleName,
+                // subtitle: p.roleName,
                 backgroundColor: const Color(0xFFFF6B35),
                 expandedHeight: 80.0,
               ),

@@ -33,81 +33,121 @@ class CustomSliverAppBar extends StatelessWidget {
       floating: floating,
       pinned: pinned,
       snap: snap,
-      elevation: 1,
-      backgroundColor: backgroundColor,
+      elevation: 0,
+      backgroundColor: Colors.transparent,
       foregroundColor: foregroundColor,
       leading: leading,
       actions: actions,
       flexibleSpace: FlexibleSpaceBar(
         title: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               title,
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.white
+                color: Colors.white,
               ),
             ),
             if (subtitle != null) ...[
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Text(
                 subtitle!,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 12,
                   color: foregroundColor.withOpacity(0.9),
-                  fontWeight: FontWeight.normal,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ],
         ),
-        titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-        background: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20)),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                backgroundColor,
-                backgroundColor.withOpacity(0.8),
+        centerTitle: true,
+        titlePadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+        background: ClipPath(
+          clipper: BottomRoundedClipper(),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  backgroundColor,
+                  backgroundColor.withOpacity(0.85),
+                ],
+              ),
+            ),
+            child: Stack(
+              children: [
+                // Decorative circles
+                Positioned(
+                  right: -30,
+                  top: -30,
+                  child: Container(
+                    width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.1),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: -50,
+                  bottom: 20,
+                  child: Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.08),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 40,
+                  bottom: -20,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.06),
+                    ),
+                  ),
+                ),
               ],
             ),
-          ),
-          child: Stack(
-            children: [
-              Positioned(
-                right: -30,
-                top: -30,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.1),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: -50,
-                bottom: -50,
-                child: Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.05),
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
       ),
     );
   }
+}
+
+// Custom clipper for rounded bottom
+class BottomRoundedClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height - 30);
+
+    // Create smooth rounded bottom curve
+    path.quadraticBezierTo(
+      size.width / 2,
+      size.height,
+      size.width,
+      size.height - 30,
+    );
+
+    path.lineTo(size.width, 0);
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

@@ -25,7 +25,8 @@ class _ProjectScreenState extends State<ProjectScreen> {
 
     return Scaffold(
 
-      appBar: AppBar(title: const Text('All Project')),
+      appBar: AppBar(title: const Text('All Project')
+      ),
 
 
       body: controller.loading

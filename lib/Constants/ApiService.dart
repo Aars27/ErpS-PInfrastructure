@@ -7,8 +7,9 @@ enum ApiType { auth, app }
 
 class ApiService {
   late Dio _dio;
+  final ApiType type;
 
-  ApiService({ApiType type = ApiType.app}) {
+  ApiService({this.type = ApiType.app}) {
     _dio = Dio(
       BaseOptions(
         baseUrl: type == ApiType.auth
@@ -21,31 +22,38 @@ class ApiService {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          debugPrint("➡️ ${options.method} ${options.uri}");
+          debugPrint("🌐 ${options.method} ${options.uri}");
+          debugPrint("🔍 Path: ${options.path}");
 
-          // 🔥 TOKEN ADD KARO (App API ke liye)
-          if (type == ApiType.app) {
-            String? token = await LocalStorage.getToken(); // ⬅️ Yeh implement karo
+          // Add token for BOTH auth and app APIs (except login endpoint)
+          if (!options.path.contains('/login')) {
+            debugPrint("🔐 Attempting to fetch token from storage...");
+            String? token = await LocalStorage.getToken();
 
-            if (token != null) {
-              options.headers['Authorization'] = 'Bearer $token'; // ⬅️ YEH LINE ADD KARO
+            if (token != null && token.isNotEmpty) {
+              options.headers['Authorization'] = 'Bearer $token';
+              debugPrint("✅ Token added successfully");
+              debugPrint("🔑 Token preview: Bearer ${token.substring(0, token.length > 20 ? 20 : token.length)}...");
+            } else {
+              debugPrint("❌ CRITICAL: No token found in storage or token is empty!");
+              debugPrint("🔍 Token value: '$token'");
             }
+          } else {
+            debugPrint("⏭️ Skipping token for login endpoint");
           }
 
-          debugPrint("➡️ HEADERS: ${options.headers}");
+          debugPrint("➡️ FINAL HEADERS: ${options.headers}");
           debugPrint("➡️ BODY: ${options.data}");
           return handler.next(options);
         },
 
-        // Optional: Error handling
         onError: (DioException error, handler) async {
-          debugPrint("❌ Error: ${error.response?.statusCode}");
+          debugPrint("❌ Error Status: ${error.response?.statusCode}");
           debugPrint("❌ Error Data: ${error.response?.data}");
 
-          // Agar 401 (Unauthorized) aaye, toh logout karo
           if (error.response?.statusCode == 401) {
+            debugPrint("🚪 Unauthorized - clearing storage");
             await LocalStorage.clear();
-            // Navigate to login screen
           }
 
           return handler.next(error);
@@ -77,7 +85,14 @@ class ApiService {
       }) {
     return _dio.get(
       path,
-      options: Options(headers: headers),
+      options: headers != null
+          ? Options(
+        headers: {
+          ..._dio.options.headers,
+          ...headers,
+        },
+      )
+          : null,
     );
   }
 }

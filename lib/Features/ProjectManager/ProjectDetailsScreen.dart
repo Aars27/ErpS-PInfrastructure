@@ -142,7 +142,6 @@ class ProjectDetailScreen extends StatelessWidget {
 
   /// =====================
   /// INFO ROW WITH ICON
-  /// =====================
   Widget _infoRow(IconData icon, String title, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),

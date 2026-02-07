@@ -286,7 +286,7 @@ class _CreateDPRScreenState extends State<CreateDPRScreen> {
         slivers: [
           // Sliver App Bar
           SliverAppBar(
-            expandedHeight: 120,
+            expandedHeight: 80,
             floating: false,
             pinned: true,
             elevation: 0,
@@ -295,23 +295,28 @@ class _CreateDPRScreenState extends State<CreateDPRScreen> {
             flexibleSpace: FlexibleSpaceBar(
               title: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Create DPR',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  Center(
+                    child: Text(
+                      'Create DPR',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   SizedBox(height: 2),
-                  Text(
-                    'Project #${widget.projectId}',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.white.withOpacity(0.9),
-                      fontWeight: FontWeight.normal,
+                  Center(
+                    child: Text(
+                      'Project #${widget.projectId}',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.white.withOpacity(0.9),
+                        fontWeight: FontWeight.normal,
+                      ),
                     ),
                   ),
                 ],
@@ -460,7 +465,7 @@ class _CreateDPRScreenState extends State<CreateDPRScreen> {
                             : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.check_circle, size: 18),
+                            Icon(Icons.check_circle,color: Colors.white, size: 18),
                             SizedBox(width: 8),
                             Text('Submit DPR',
                                 style: TextStyle(
